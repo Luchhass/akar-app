@@ -1,6 +1,8 @@
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 function escapeHtml(value = "") {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -12,6 +14,10 @@ function escapeHtml(value = "") {
 
 export async function POST(request) {
   try {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      throw new Error("EMAIL_USER veya EMAIL_PASS eksik.");
+    }
+
     const formData = await request.formData();
 
     const firstName = escapeHtml(formData.get("firstName") || "-");
@@ -28,10 +34,16 @@ export async function POST(request) {
     );
 
     const imageFile = formData.get("image");
-    const hasImage = imageFile && typeof imageFile === "object" && imageFile.size > 0;
+    const hasImage =
+      imageFile &&
+      typeof imageFile === "object" &&
+      "size" in imageFile &&
+      imageFile.size > 0;
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -303,12 +315,13 @@ Ek Görsel: ${hasImage ? "Var" : "Yok"}
       message: "Mesaj gönderildi",
     });
   } catch (error) {
-    console.log(error);
+    console.error("MAIL_ERROR:", error);
 
     return NextResponse.json(
       {
         success: false,
         message: "Mesaj gönderilemedi",
+        error: error?.message || "Bilinmeyen hata",
       },
       { status: 500 }
     );

@@ -1,26 +1,157 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 export default function ContactPage() {
-  const requestTypes = [
-    "Hazır Ürün Talebi",
-    "Özel Sipariş Talebi",
-    "3D Modelleme Desteği",
-  ];
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    brand: "",
+    model: "",
+    year: "",
+    title: "",
+    description: "",
+    image: null,
+  });
 
-  const vehicleTypes = ["Binek Araç", "Ticari Araç", "Klasik Araç"];
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fileName, setFileName] = useState("");
+  const [fileInputKey, setFileInputKey] = useState(0);
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    type: "",
+    title: "",
+    message: "",
+  });
 
-  const supportTopics = [
-    "Nadir Parça Üretimi",
-    "Tersine Mühendislik",
-    "Ölçü / Numune İncelemesi",
-    "Malzeme Seçimi",
-    "Fiyat Teklifi",
-    "Diğer",
-  ];
+  const fileInputRef = useRef(null);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0] || null;
+
+    setFormData((prev) => ({
+      ...prev,
+      image: file,
+    }));
+
+    setFileName(file ? file.name : "");
+  };
+
+  const closeModal = () => {
+    setModalState({
+      isOpen: false,
+      type: "",
+      title: "",
+      message: "",
+    });
+  };
+
+  useEffect(() => {
+    if (!modalState.isOpen) return;
+
+    document.body.style.overflow = "hidden";
+
+    const timer = setTimeout(() => {
+      closeModal();
+    }, 5000);
+
+    return () => {
+      clearTimeout(timer);
+      document.body.style.overflow = "unset";
+    };
+  }, [modalState.isOpen]);
+
+  const resetForm = () => {
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      brand: "",
+      model: "",
+      year: "",
+      title: "",
+      description: "",
+      image: null,
+    });
+
+    setFileName("");
+    setFileInputKey((prev) => prev + 1);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const submitData = new FormData();
+      submitData.append("firstName", formData.firstName);
+      submitData.append("lastName", formData.lastName);
+      submitData.append("email", formData.email);
+      submitData.append("phone", formData.phone);
+      submitData.append("brand", formData.brand);
+      submitData.append("model", formData.model);
+      submitData.append("year", formData.year);
+      submitData.append("title", formData.title);
+      submitData.append("description", formData.description);
+
+      if (formData.image) {
+        submitData.append("image", formData.image);
+      }
+
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        body: submitData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setModalState({
+          isOpen: true,
+          type: "success",
+          title: "Talebiniz Gönderildi",
+          message:
+            "Mesajınız başarıyla iletildi. En kısa sürede sizinle iletişime geçeceğiz.",
+        });
+
+        resetForm();
+      } else {
+        setModalState({
+          isOpen: true,
+          type: "error",
+          title: "Gönderim Başarısız",
+          message:
+            result.message || "Mesaj gönderilemedi. Lütfen tekrar deneyin.",
+        });
+      }
+    } catch (error) {
+      setModalState({
+        isOpen: true,
+        type: "error",
+        title: "Bir Hata Oluştu",
+        message: "Mesaj gönderilirken beklenmeyen bir hata oluştu.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <main className="bg-[#222222] text-white">
-      <section className="relative min-h-90 overflow-hidden bg-black h-[44svh] md:min-h-105 md:h-[46svh] lg:min-h-105 lg:h-[50vh]">
+      <section className="relative h-[44svh] min-h-90 overflow-hidden bg-black md:h-[46svh] md:min-h-105 lg:h-[50vh] lg:min-h-105">
         <Image
           src="/banners/contact-banner-03.png"
           alt="AkAr contact banner"
@@ -74,45 +205,51 @@ export default function ContactPage() {
           </div>
 
           <div className="mx-auto mt-10 max-w-285 rounded-xl bg-[#efefed] px-5 py-6 text-[#232323] shadow-[0_12px_40px_rgba(0,0,0,0.18)] md:mt-12 md:px-10 md:py-10 lg:mt-16 lg:px-14 lg:py-12">
-            <form className="space-y-8">
+            <form className="space-y-8" onSubmit={handleSubmit}>
               <div>
                 <h3 className="text-[17px] font-semibold text-[#232323] lg:text-[18px]">
                   İletişim Bilgileri
                 </h3>
 
-                <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
                   <input
                     type="text"
-                    placeholder="Ad Soyad"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    placeholder="Ad"
+                    required
                     className="h-11 rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none placeholder:text-black/35"
                   />
+
                   <input
-                    type="tel"
-                    placeholder="Telefon Numarası"
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    placeholder="Soyad"
+                    required
                     className="h-11 rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none placeholder:text-black/35"
                   />
+
                   <input
                     type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     placeholder="E-posta Adresi"
-                    className="h-11 rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none placeholder:text-black/35 md:col-span-2 lg:col-span-1"
+                    required
+                    className="h-11 rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none placeholder:text-black/35"
                   />
-                </div>
 
-                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   <input
-                    type="text"
-                    placeholder="Araç Markası"
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="Telefon Numarası"
+                    required
                     className="h-11 rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none placeholder:text-black/35"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Araç Modeli"
-                    className="h-11 rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none placeholder:text-black/35"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Araç Yılı"
-                    className="h-11 rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none placeholder:text-black/35 md:col-span-2 lg:col-span-1"
                   />
                 </div>
               </div>
@@ -123,72 +260,174 @@ export default function ContactPage() {
                 </h3>
 
                 <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  <select className="h-11 rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none">
-                    <option value="">Talep Türü</option>
-                    {requestTypes.map((item) => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select className="h-11 rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none">
-                    <option value="">Araç Tipi</option>
-                    {vehicleTypes.map((item) => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                  </select>
+                  <input
+                    type="text"
+                    name="brand"
+                    value={formData.brand}
+                    onChange={handleChange}
+                    placeholder="Araç Markası"
+                    className="h-11 rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none placeholder:text-black/35"
+                  />
 
                   <input
                     type="text"
-                    placeholder="Parça Adı / Parça Kodu"
+                    name="model"
+                    value={formData.model}
+                    onChange={handleChange}
+                    placeholder="Araç Modeli"
+                    className="h-11 rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none placeholder:text-black/35"
+                  />
+
+                  <input
+                    type="text"
+                    name="year"
+                    value={formData.year}
+                    onChange={handleChange}
+                    placeholder="Araç Yılı"
                     className="h-11 rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none placeholder:text-black/35 md:col-span-2 lg:col-span-1"
                   />
                 </div>
 
                 <div className="mt-4">
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    placeholder="Başlık"
+                    required
+                    className="h-11 w-full rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] outline-none placeholder:text-black/35"
+                  />
+                </div>
+
+                <div className="mt-4">
                   <textarea
-                    placeholder="İhtiyacınız olan parçayı, kullanım alanını veya yaşadığınız sorunu kısaca açıklayın..."
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Detaylı açıklama"
+                    required
                     className="min-h-32 w-full resize-none rounded-[10px] border border-black/18 bg-transparent px-4 py-3 text-[13px] leading-[1.7] text-[#232323] outline-none placeholder:text-black/35 lg:min-h-34"
                   />
                 </div>
-              </div>
 
-              <div>
-                <p className="text-[13px] text-black/45">
-                  İlgilendiğiniz hizmet başlıkları
-                </p>
+                <div className="mt-4">
+                  <input
+                    key={fileInputKey}
+                    ref={fileInputRef}
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
 
-                <div className="mt-4 grid grid-cols-1 gap-x-8 gap-y-3 md:grid-cols-2 lg:grid-cols-3">
-                  {supportTopics.map((item) => (
-                    <label
-                      key={item}
-                      className="flex items-center gap-3 text-[13px] text-black/55"
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex h-11 w-[50%] items-center justify-between rounded-[10px] border border-black/18 bg-transparent px-4 text-[13px] text-[#232323] transition hover:border-black/28"
+                  >
+                    <span
+                      className={fileName ? "text-[#232323]" : "text-black/35"}
                     >
-                      <input
-                        type="checkbox"
-                        className="size-3 rounded-xs border border-black/25 accent-[#04388d]"
-                      />
-                      <span>{item}</span>
-                    </label>
-                  ))}
+                      {fileName ? fileName : "Resim Ekleyin"}
+                    </span>
+
+                    <span className="text-[#04388d] font-medium">Seç</span>
+                  </button>
+
+                  <p className="mt-3 text-[13px] text-black/35">
+                    JPG, PNG veya WEBP formatında görsel ekleyebilirsiniz.
+                  </p>
                 </div>
               </div>
 
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="inline-flex h-11 items-center rounded-full bg-[#04388d] px-7 text-[12px] font-medium text-white transition hover:opacity-90 lg:h-10.5"
+                  disabled={isSubmitting}
+                  className="inline-flex h-11 items-center rounded-full bg-[#04388d] px-7 text-[12px] font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70 lg:h-10.5"
                 >
-                  Talep Gönder ↗
+                  {isSubmitting ? "Gönderiliyor..." : "Talep Gönder ↗"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       </section>
+
+      {modalState.isOpen && (
+        <div className="fixed inset-0 z-999 flex items-center justify-center bg-black/55 px-5 backdrop-blur-[2px]">
+          <div className="relative w-full max-w-105 overflow-hidden rounded-[20px] bg-white text-[#232323] shadow-[0_30px_80px_rgba(0,0,0,0.35)]">
+            <div className="px-7 pb-7 pt-8 text-center">
+              <div
+                className={`mx-auto flex size-16 items-center justify-center rounded-full ${
+                  modalState.type === "success" ? "bg-[#04388d]" : "bg-red-500"
+                }`}
+              >
+                {modalState.type === "success" ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="size-8 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="size-8 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                )}
+              </div>
+
+              <h3 className="mt-5 text-[28px] font-bold leading-none tracking-[-0.03em] text-[#232323]">
+                {modalState.title}
+              </h3>
+
+              <p className="mx-auto mt-4 max-w-75 text-[14px] leading-[1.8] text-black/50">
+                {modalState.message}
+              </p>
+            </div>
+
+            <div className="h-1.25 w-full bg-black/8">
+              <div
+                className={`h-full ${
+                  modalState.type === "success" ? "bg-[#04388d]" : "bg-red-500"
+                } animate-[shrink_5s_linear_forwards]`}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx global>{`
+        @keyframes shrink {
+          from {
+            width: 100%;
+          }
+          to {
+            width: 0%;
+          }
+        }
+      `}</style>
     </main>
   );
 }

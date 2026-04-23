@@ -22,7 +22,7 @@ export default function ContactPage() {
     <main className="bg-[#222222] text-white">
       <section className="relative min-h-90 overflow-hidden bg-black h-[44svh] md:min-h-105 md:h-[46svh] lg:min-h-105 lg:h-[50vh]">
         <Image
-          src="/banners/contact-banner.png"
+          src="/banners/contact-banner-02.png"
           alt="AkAr contact banner"
           fill
           priority

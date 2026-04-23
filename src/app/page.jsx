@@ -269,7 +269,7 @@ export default function Home() {
         <div className="relative mx-auto flex min-h-svh w-full items-center">
           <div className="pointer-events-none absolute inset-y-0 right-0 z-0 hidden h-full w-[54vw] lg:block">
             <Image
-              src="/banners/banner-car.png"
+              src="/banners/home-banner-01.png"
               alt="Banner car"
               fill
               priority

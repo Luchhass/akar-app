@@ -2,14 +2,9 @@ import Link from "next/link";
 import { MapPin, Phone, Mail, Globe, ArrowUpRight } from "lucide-react";
 
 const quickLinks = [
-  { label: "Hakkımızda", href: "/about" },
-  { label: "Neden AkAr", href: "/why-us" },
-  { label: "Hizmetlerimiz", href: "/services" },
-  { label: "Nasıl Çalışır", href: "/how-it-works" },
-  { label: "Fiyatlandırma", href: "/pricing" },
+  { label: "Ana Sayfa", href: "/" },
+  { label: "Hizmetlerimiz", href: "/category" },
   { label: "İletişim", href: "/contact" },
-  { label: "Blog", href: "/blog" },
-  { label: "SSS", href: "/faq" },
 ];
 
 export default function Footer() {
@@ -42,7 +37,7 @@ export default function Footer() {
 
               <div className="flex items-start gap-3 text-sm leading-7 text-white/45">
                 <Phone className="mt-0.5 size-4 shrink-0 text-[#04388d]" />
-                <span>+90 555 555 55 55</span>
+                <span>+90 552 512 40 02</span>
               </div>
 
               <div className="flex items-start gap-3 break-all text-sm leading-7 text-white/45">
@@ -52,7 +47,7 @@ export default function Footer() {
 
               <div className="flex items-start gap-3 break-all text-sm leading-7 text-white/45">
                 <Globe className="mt-0.5 size-4 shrink-0 text-[#04388d]" />
-                <span>www.akaryedekparca.com</span>
+                <span>https://akar-app.vercel.app</span>
               </div>
             </div>
           </div>

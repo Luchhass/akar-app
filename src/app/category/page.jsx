@@ -45,7 +45,7 @@ export default function CategoryPage() {
     <main className="min-h-screen bg-[#222222] text-white">
       <section className="relative min-h-90 overflow-hidden bg-black h-[44svh] md:min-h-105 md:h-[46svh] lg:min-h-105 lg:h-[50vh]">
         <Image
-          src="/banners/category-banner.png"
+          src="/banners/category-banner-01.png"
           alt="AkAr category banner"
           fill
           priority

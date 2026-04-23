@@ -267,26 +267,33 @@ export default function Home() {
     <main className="bg-[#222222]">
       <section className="min-h-svh overflow-hidden bg-black text-white">
         <div className="relative mx-auto flex min-h-svh w-full items-center">
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-0 hidden h-full w-[54vw] lg:block">
-            <Image
-              src="/banners/home-banner-02.png"
-              alt="Banner car"
-              fill
-              priority
-              className="object-contain object-bottom-right"
-            />
-          </div>
+<div className="pointer-events-none absolute inset-y-0 right-0 z-0 hidden h-full w-[54vw] overflow-hidden lg:block">
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    className="h-full w-full object-cover object-center"
+  >
+    <source src="/videos/home-banner.mp4" type="video/mp4" />
+  </video>
 
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-full lg:hidden">
-            <Image
-              src="/banners/banner-car.png"
-              alt="Banner car"
-              fill
-              priority
-              className="object-contain object-bottom-right scale-105 md:scale-115"
-            />
-            <div className="absolute inset-0 bg-linear-to-r from-black via-black/75 to-black/15 md:from-black md:via-black/65 md:to-transparent" />
-          </div>
+  <div className="absolute inset-0 bg-black/20" />
+</div>
+
+<div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-full overflow-hidden lg:hidden">
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    className="h-full w-full object-cover object-center scale-105 md:scale-115"
+  >
+    <source src="/videos/home-banner.mp4" type="video/mp4" />
+  </video>
+
+  <div className="absolute inset-0 bg-linear-to-r from-black via-black/75 to-black/15 md:from-black md:via-black/65 md:to-transparent" />
+</div>
 
           <div className="z-10 flex w-full items-center justify-between px-5 py-28 md:px-10 md:py-32 lg:px-34">
             <div className="w-full max-w-full lg:max-w-none">

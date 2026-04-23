@@ -261,7 +261,7 @@ function ProcessCard({ step, showArrow = false, arrowWidth = "lg:w-30" }) {
 }
 
 export default function Home() {
-  const [openFaq, setOpenFaq] = useState(0);
+   const [openFaq, setOpenFaq] = useState(0);
 
   return (
     <main className="bg-[#222222]">

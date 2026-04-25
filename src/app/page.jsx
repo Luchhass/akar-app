@@ -279,7 +279,7 @@ export default function Home() {
 
           <div className="pointer-events-none absolute inset-y-0 right-0 z-0 w-full lg:hidden">
             <Image
-              src="/banners/banner-car.png"
+              src="/banners/home-banner-02.png"
               alt="Banner car"
               fill
               priority
